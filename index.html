@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dodge challenger _ American Muscle</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css">
+    <script type="importmap">
+        {"imports" : {"three" : "./libs/three/build/three.module.js",
+        "three/addons/" : "./libs/three/examples/jsm/"}}
+    </script>
+</head>
+<body>
+    <div class="loader" id="loader"><div><span id="loaderNum">0</span><small>%</small><em>Warming up the engine</em></div></div>
+
+<!--========================navbar=====================-->
+<header class="nav" id="nav">
+    <a class="brand" href="#hero" data-target="hero"><i>CHALLENGER</i></a>
+    <nav>
+        <a href="#hero" data-target="hero" class="active">HOME</a>
+        <a href="#about" data-target="about">ABOUT</a>
+        <a href="#timeline" data-target="timeline">TIMELINE</a>
+        <a href="#contact" data-target="contact">CONTACT</a>
+    </nav>
+</header>
+<!--====================HEROSECTION(scroll dodge 3D)================-->
+<section class="hero" id="hero">
+    <div class="stage">
+        <canvas id="scene"></canvas>
+        <div class="fx speedlines" id="speedlines"></div>
+        <div class="fx vignette"></div>
+        <div class="fx grain"></div>
+        <div class="fx bar-bottom"><span class="hint">Scroll</span></div>
+        <div class="progress"><span></span></div>
+        <!--1 scroll-->
+        <article class="slide">
+            <h2 class="word">HELLCAT</h2>
+            <p class="quote">Quet is for libraries.</p>
+        </article>
+        <!--2 scroll-->
+        <article class="slide">
+            <h2 class="word">The Numbers</h2>
+            <div class="specs">
+                <div><span>Power</span><b><i data-count="807">807</i><u>HP</u></b></div>
+                <div><span>Torque</span><b><i data-count="707">707</i><u>lb-ft</u></b></div>
+                <div><span>0-60 mph</span><b><i data-count="3.6" data-dec="2">3.6</i><u>sec</u></b></div>
+                <div><span>Quarter mile</span><b><i data-count="10" data-dec="1">10</i><u>sec</u></b></div>
+                <div><span>Top Speed</span><b><i data-count="200">200</i><u>mph</u></b></div>
+                <div><span>Engine</span><b><i data-count="6.2" data-dec="1">6.2</i><u>L V8 SC</u></b></div>
+                <div class="wide"><span>Drivetrain</span><p>Supercharged fury. Pure American muscle. The 6.2L HEMI V8 delivers relentless power, rear-wheel-drive aggression, and a legendary Hellcat roar.</p></div>
+            </div>
+            <p class="quote">Engine hundred and seven reasons to <em>never lift</em></p>
+        </article>
+        <!--3scroll-->
+        <article class="slide">
+            <h2 class="word">Taillights</h2>
+            <p class="info">A wide planted rear and a tail that never lets anyone forget who just passed them</p>
+            <p class="quote">the last thingthey`ll ever <em>see</em></p>
+        </article>
+        <!--4 scroll-->
+        <article class="slide">
+            <h2 class="word">Grip</h2>
+            <p class="info">forged to grip. engineered to dominate</p>
+            <p class="quote">Traction is a promise <em>these tires keep it</em></p>
+        </article>
+        <!-- 5 · HOOD -->
+      <article class="slide">
+        <h2 class="word">Breathe</h2>
+        <p class="info">A supercharged 6.2-litre HEMI V8 under a widebody that adds 3.5 inches of attitude.</p>
+        <p class="quote">Eight cylinders inhale. <em>The street exhales.</em></p>
+      </article>
+
+      <!-- 6 · LAUNCH -->
+      <article class="slide">
+        <h2 class="word">Launch</h2>
+        <div class="hud">
+          <div class="speed"><b id="hudSpeed">0</b><span>MPH</span></div>
+          <div class="rpm" id="hudRpm"></div>
+        </div>
+        <p class="quote">Launch control: engaged. <em>Excuses: deleted.</em></p>
+      </article>
+
+      <!-- 7 · FINAL -->
+      <article class="slide final">
+        <h2 class="word">Own the road</h2>
+        <p class="quote">Some cars take you places. <em>This one takes the whole street.</em></p>
+        <button class="explore" id="exploreBtn">Explore Car <i>→</i></button>
+      </article>
+    </div>
+</section>
+</body>
+</html>
