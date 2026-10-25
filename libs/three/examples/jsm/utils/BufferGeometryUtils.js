@@ -1,5 +1,6 @@
+//مجموعه ای از توابع کمکی برای کار با هندسه های سه بعددی
 import {
-	BufferAttribute,
+	BufferAttribute, 
 	BufferGeometry,
 	Float32BufferAttribute,
 	InstancedBufferAttribute,
@@ -11,6 +12,7 @@ import {
 	Vector3,
 } from 'three';
 
+//محاسبه مماس ها برای برخی روش های نورپردازی و نمایش بافت
 function computeMikkTSpaceTangents( geometry, MikkTSpace, negateSign = true ) {
 
 	if ( ! MikkTSpace || ! MikkTSpace.isReady ) {
@@ -104,6 +106,7 @@ function computeMikkTSpaceTangents( geometry, MikkTSpace, negateSign = true ) {
  * @param  {Boolean} useGroups
  * @return {BufferGeometry}
  */
+//ترکیب چندهندسه در یک هندسه
 function mergeGeometries( geometries, useGroups = false ) {
 
 	const isIndexed = geometries[ 0 ].index !== null;
@@ -299,6 +302,7 @@ function mergeGeometries( geometries, useGroups = false ) {
  * @param {Array<BufferAttribute>} attributes
  * @return {BufferAttribute}
  */
+//ترکیب چند مجموعه از ویژگی های هندسی
 function mergeAttributes( attributes ) {
 
 	let TypedArray;
@@ -570,6 +574,7 @@ export function deinterleaveGeometry( geometry ) {
  * @param {BufferGeometry} geometry
  * @return {number}
  */
+//براورد حافظه مصرف شده توسط هندسه
 function estimateBytesUsed( geometry ) {
 
 	// Return the estimated memory used by this geometry in bytes
@@ -594,6 +599,7 @@ function estimateBytesUsed( geometry ) {
  * @param {number} tolerance
  * @return {BufferGeometry}
  */
+//یکی کردن راس های تکراری در محدوده تلوارنس مشخص
 function mergeVertices( geometry, tolerance = 1e-4 ) {
 
 	tolerance = Math.max( tolerance, Number.EPSILON );
@@ -757,6 +763,7 @@ function mergeVertices( geometry, tolerance = 1e-4 ) {
  * @param {number} drawMode
  * @return {BufferGeometry}
  */
+//تبدیل حالت های رسم هندسه به مثلث ها
 function toTrianglesDrawMode( geometry, drawMode ) {
 
 	if ( drawMode === TrianglesDrawMode ) {

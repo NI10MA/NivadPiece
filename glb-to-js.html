@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GLB → car-model.js</title>
+<style>
+body{font-family:system-ui,sans-serif;background:#14110f;color:#fff;display:grid;place-items:center;min-height:100vh;margin:0;text-align:center}
+.box{max-width:520px;padding:40px;border:2px dashed #ff6a13}
+button,label{display:inline-block;background:#ff6a13;color:#fff;padding:14px 28px;font-weight:700;cursor:pointer;border:0}
+input{display:none} p{opacity:.75;line-height:1.7} #msg{margin-top:20px;color:#ff6a13;font-weight:700}
+</style></head><body>
+<div class="box">
+  <h2>Car model converter</h2>
+  <p>Choose your new <b>.glb</b> file. A file named <b>car-model.js</b> will be downloaded.<br>
+  Put it in the project folder and replace the old <b>car-model.js</b>. That's all.</p>
+  <label for="f">Choose .glb file</label><input id="f" type="file" accept=".glb">
+  <div id="msg"></div>
+</div>
+<script>
+document.getElementById('f').addEventListener('change', function (e) {
+  var file = e.target.files[0]; if (!file) return;
+  var msg = document.getElementById('msg'); msg.textContent = 'Converting...';
+  var r = new FileReader();
+  r.onload = function () {
+    var b64 = r.result.split(',')[1], CH = 1000000, parts = [];
+    for (var i = 0; i < b64.length; i += CH) parts.push('"' + b64.slice(i, i + CH) + '"');
+    var text = '/* car model stored as text so the site opens by double-click */\nwindow.CAR_GLB=[\n' + parts.join(',\n') + '\n];\n';
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([text], { type: 'text/javascript' }));
+    a.download = 'car-model.js'; a.click();
+    msg.textContent = 'Done! car-model.js downloaded.';
+  };
+  r.readAsDataURL(file);
+});
+</script></body></html>

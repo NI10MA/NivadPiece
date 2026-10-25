@@ -1,3 +1,4 @@
+/*یک محیط داخلی مجازی میسازد تا نور و انعکاس محیط روی خودرو سه بعدی تاثیر بگذارد*/
 /**
  * https://github.com/google/model-viewer/blob/master/packages/model-viewer/src/three-components/EnvironmentScene.ts
  */

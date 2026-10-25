@@ -1,72 +1,99 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dodge challenger _ American Muscle</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="style.css">
-    <script type="importmap">
-        {"imports" : {"three" : "./libs/three/build/three.module.js",
-        "three/addons/" : "./libs/three/examples/jsm/"}}
-    </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dodge Challenger — Own the Road</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <div class="loader" id="loader"><div><span id="loaderNum">0</span><small>%</small><em>Warming up the engine</em></div></div>
+  <!--نوشته لودینگ و در حال روشن کردن ماشین-->
+  <div class="loader" id="loader"><div><b class="l-bar"><i></i></b><em>Warming up the engine</em></div></div>
 
-<!--========================navbar=====================-->
-<header class="nav" id="nav">
-    <a class="brand" href="#hero" data-target="hero"><i>CHALLENGER</i></a>
+  <!-- ================= NAVBAR ================= -->
+  <header class="nav" id="nav">
+    <a class="brand" href="#hero" data-target="hero"><i></i>CHALLENGER</a>
     <nav>
-        <a href="#hero" data-target="hero" class="active">HOME</a>
-        <a href="#about" data-target="about">ABOUT</a>
-        <a href="#timeline" data-target="timeline">TIMELINE</a>
-        <a href="#contact" data-target="contact">CONTACT</a>
+      <a href="#hero"     data-target="hero"     class="active">Home</a>
+      <a href="#about"    data-target="about">About</a>
+      <a href="#timeline" data-target="timeline">Timeline</a>
+      <a href="#contact"  data-target="contact">Contact</a>
     </nav>
-</header>
-<!--====================HEROSECTION(scroll dodge 3D)================-->
-<section class="hero" id="hero">
+  </header>
+
+  <!-- ================= HEROSECTION ================= -->
+   <!--صحنه ماشین و افکتهای بصری-->
+  <section class="hero" id="hero">
     <div class="stage">
-        <canvas id="scene"></canvas>
-        <div class="fx speedlines" id="speedlines"></div>
-        <div class="fx vignette"></div>
-        <div class="fx grain"></div>
-        <div class="fx bar-bottom"><span class="hint">Scroll</span></div>
-        <div class="progress"><span></span></div>
-        <!--1 scroll-->
-        <article class="slide">
-            <h2 class="word">HELLCAT</h2>
-            <p class="quote">Quet is for libraries.</p>
-        </article>
-        <!--2 scroll-->
-        <article class="slide">
-            <h2 class="word">The Numbers</h2>
-            <div class="specs">
-                <div><span>Power</span><b><i data-count="807">807</i><u>HP</u></b></div>
-                <div><span>Torque</span><b><i data-count="707">707</i><u>lb-ft</u></b></div>
-                <div><span>0-60 mph</span><b><i data-count="3.6" data-dec="2">3.6</i><u>sec</u></b></div>
-                <div><span>Quarter mile</span><b><i data-count="10" data-dec="1">10</i><u>sec</u></b></div>
-                <div><span>Top Speed</span><b><i data-count="200">200</i><u>mph</u></b></div>
-                <div><span>Engine</span><b><i data-count="6.2" data-dec="1">6.2</i><u>L V8 SC</u></b></div>
-                <div class="wide"><span>Drivetrain</span><p>Supercharged fury. Pure American muscle. The 6.2L HEMI V8 delivers relentless power, rear-wheel-drive aggression, and a legendary Hellcat roar.</p></div>
-            </div>
-            <p class="quote">Engine hundred and seven reasons to <em>never lift</em></p>
-        </article>
-        <!--3scroll-->
-        <article class="slide">
-            <h2 class="word">Taillights</h2>
-            <p class="info">A wide planted rear and a tail that never lets anyone forget who just passed them</p>
-            <p class="quote">the last thingthey`ll ever <em>see</em></p>
-        </article>
-        <!--4 scroll-->
-        <article class="slide">
-            <h2 class="word">Grip</h2>
-            <p class="info">forged to grip. engineered to dominate</p>
-            <p class="quote">Traction is a promise <em>these tires keep it</em></p>
-        </article>
-        <!-- 5 · HOOD -->
+      <canvas id="scene"></canvas>
+
+      <div class="fx speedlines" id="speedlines"></div>
+      <div class="fx speedlines streaks" id="streaks"></div>
+      <div class="fx flash" id="flash"></div>
+      <div class="fx slash" id="slash"></div>
+      <div class="fx vignette"></div>
+      <div class="fx grain"></div>
+      <div class="fx bar-bottom"><span class="hint">Scroll</span></div>
+      <div class="progress"><span></span></div>
+
+      <!-- Explore Car mode UI (اگر کاربر دکمه اکسپلور کار رو زد) -->
+      <div class="ex-ui" id="exUi">
+        <button class="ex-btn ex-exit" id="exExit" aria-label="Exit explore mode"><b>✕</b><span>Exit explore</span></button>
+        <button class="ex-btn ex-reset" id="exReset" aria-label="Reset view"><b>↺</b><span>Reset</span></button>
+        <p class="ex-hint">Drag to rotate &nbsp;·&nbsp; Scroll or pinch to zoom &nbsp;·&nbsp; Tap the glowing dots</p>
+        <div class="ex-colors" id="exColors" aria-label="Car color">
+          <span class="ex-color-title">Color</span>
+          <button class="ex-color" data-color="#ff6a13" style="--c:#ff6a13" aria-label="Orange"></button>
+          <button class="ex-color" data-color="#101010" style="--c:#101010" aria-label="Black"></button>
+          <button class="ex-color" data-color="#5b5f66" style="--c:#5b5f66" aria-label="Graphite"></button>
+          <button class="ex-color" data-color="#1f8f4e" style="--c:#1f8f4e" aria-label="Green"></button>
+          <button class="ex-color" data-color="#1f5fd1" style="--c:#1f5fd1" aria-label="Blue"></button>
+          <button class="ex-color" data-color="#c8080d" style="--c:#c8080d" aria-label="Light red"></button>
+        </div>
+        <div class="ex-hotlayer" id="exHot"></div>
+        <aside class="ex-card" id="exCard">
+          <button class="ex-x" aria-label="Close">×</button>
+          <p class="ex-sub"></p><h3></h3><dl></dl><p class="ex-text"></p>
+        </aside>
+        <p class="ex-toast" id="exToast"></p>
+      </div>
+
+      <!-- 1 · INTRO -->
+      <article class="slide">
+        <h2 class="word">HELLCAT</h2>
+        <p class="quote">Quiet is for libraries.</p>
+      </article>
+
+      <!-- 2 · SPECS (مشخصات) -->
+      <article class="slide">
+        <h2 class="word">The Numbers</h2>
+        <div class="specs">
+          <div><span>Power</span><b><i data-count="807">807</i><u>hp</u></b></div>
+          <div><span>Torque</span><b><i data-count="707">707</i><u>lb-ft</u></b></div>
+          <div><span>0–60 mph</span><b><i data-count="3.6" data-dec="1">3.6</i><u>sec</u></b></div>
+          <div><span>Quarter mile</span><b><i data-count="10" data-dec="0">10</i><u>sec</u></b></div>
+          <div><span>Top speed</span><b><i data-count="200" data-top>200</i><u>mph</u></b></div>
+          <div><span>Engine</span><b><i data-count="6.2" data-dec="1">6.2</i><u>L V8 SC</u></b></div>
+          <div class="wide"><span>Drivetrain</span><p>Supercharged fury. Pure American muscle. The 6.2L HEMI V8 delivers relentless power, rear-wheel-drive aggression, and a legendary Hellcat roar.</p></div>
+        </div>
+        <p class="quote">Eight hundred and seven reasons to <em>never lift.</em></p>
+      </article>
+
+      <!-- 3 · REAR -->
+      <article class="slide">
+        <h2 class="word">Taillights</h2>
+        <p class="info">A wide, planted rear and a tail that never lets anyone forget who just passed them.</p>
+        <p class="quote">The last thing they'll ever <em>see.</em></p>
+      </article>
+
+      <!-- 4 · WHEEL -->
+      <article class="slide">
+        <h2 class="word">Grip</h2>
+        <p class="info">Forged to grip. Engineered to dominate.</p>
+        <p class="quote">Traction is a promise. <em>These tires keep it.</em></p>
+      </article>
+
+      <!-- 5 · HOOD -->
       <article class="slide">
         <h2 class="word">Breathe</h2>
         <p class="info">A supercharged 6.2-litre HEMI V8 under a widebody that adds 3.5 inches of attitude.</p>
@@ -77,7 +104,7 @@
       <article class="slide">
         <h2 class="word">Launch</h2>
         <div class="hud">
-          <div class="speed"><b id="hudSpeed">0</b><span>MPH</span></div>
+          <div class="speed"><b id="hudSpeed">200</b><span>MPH</span></div>
           <div class="rpm" id="hudRpm"></div>
         </div>
         <p class="quote">Launch control: engaged. <em>Excuses: deleted.</em></p>
@@ -90,6 +117,56 @@
         <button class="explore" id="exploreBtn">Explore Car <i>→</i></button>
       </article>
     </div>
-</section>
+  </section>
+
+  <!-- ================= ABOUT ================= -->
+  <section class="about" id="about">
+    <div class="wrap">
+      <p class="eyebrow">About</p>
+      <h2 class="big reveal">Built loud.<br/><em>Built to last.</em></h2>
+      <div class="about-grid">
+        <p class="lead reveal">The Challenger has been the American muscle car for over fifty years. The 2020 SRT Super Stock is the street-legal drag car: a supercharged 6.2-litre HEMI V8, drag radials, and a widebody stance that needs no introduction.</p>
+        <div class="cards">
+          <div class="card reveal"><b>807</b><span>Horsepower</span><p>Pump-gas power from a supercharged HEMI V8.</p></div>
+          <div class="card reveal"><b>3.25s</b><span>0 – 60 mph</span><p>Launch control, line lock and a power chiller as standard.</p></div>
+          <div class="card reveal"><b>10.5s</b><span>Quarter mile</span><p>Straight out of the showroom, at 131 mph.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= TIMELINE ================= -->
+  <section class="timeline" id="timeline">
+    <div class="wrap">
+      <p class="eyebrow">Timeline</p>
+      <h2 class="big reveal">Fifty years<br/><em>of thunder.</em></h2>
+      <ol class="tl">
+        <li class="tl-line" aria-hidden="true"><span class="tl-fill" id="tlFill"></span></li>
+        <li class="tl-item"><time>1970 <img class="tl-car" src="cars/1970.png" alt="" loading="lazy"></time><div><h3>The Original</h3><p>The first Challenger arrives, with big-block V8s up to the legendary 426 HEMI.</p></div></li>
+        <li class="tl-item"><time>1974 <img class="tl-car" src="cars/1974.png" alt="" loading="lazy"></time><div><h3>Lights Out</h3><p>The first generation ends production. The nameplate goes quiet.</p></div></li>
+        <li class="tl-item"><time>2008 <img class="tl-car" src="cars/2008.png" alt="" loading="lazy"></time><div><h3>The Return</h3><p>Retro looks, modern muscle. The Challenger is reborn.</p></div></li>
+        <li class="tl-item"><time>2015 <img class="tl-car" src="cars/2015.png" alt="" loading="lazy"></time><div><h3>Hellcat</h3><p>707 supercharged horsepower and a whine you hear from three blocks away.</p></div></li>
+        <li class="tl-item"><time>2018 <img class="tl-car" src="cars/2018.png" alt="" loading="lazy"></time><div><h3>Demon</h3><p>840 horsepower, a factory drag car and a 2.3-second 0–60.</p></div></li>
+        <li class="tl-item"><time>2020 <img class="tl-car" src="cars/2020.png" alt="" loading="lazy"></time><div><h3>Super Stock</h3><p>807 horsepower, drag radials and a street-legal quarter-mile weapon.</p></div></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ================= paragraph ================= -->
+  <section class="paragraph" id="contact">
+    <h2 class="big talk">
+      <span class="ln">Let's talk</span>
+      <span class="ln"><em>horsepower.</em></span>
+    </h2>
+  </section>
+  
+  
+<!----------------------------کانکت اسکریپت ها-------------------------->
+  <script src="libs/gsap.min.js"></script>
+  <script src="libs/ScrollTrigger.min.js"></script>
+  <script src="vendor.js"></script>
+  <script src="car-model.js"></script>
+  <script src="explore.js"></script>
+  <script src="main.js"></script>
 </body>
 </html>

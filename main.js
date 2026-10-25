@@ -1,46 +1,59 @@
-import * as THREE from 'three';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+(function(){ //یک محدوده مستقل برای کدهای پروژه ایجاد میکند
+"use strict";  //فعال کردن حالت سخت گیرانه جاوا برای شناسایی خطاها
+const THREE = window.THREE, { GLTFLoader, RoomEnvironment } = THREE, createExplore = window.createExplore;
 
-gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(ScrollTrigger); //کنترل انیمیشن هنگام اسکرول
 
-/*================تنظیم مسیر دوربین و ماشین==============*/
-const MODEL_URL = './challenger_work.glb';   
-const CAR_LENGTH = 5;    
+/* =====================================================================
+   تنظیمات خودرو,افکت ها و زاویه های دوربین
+   ===================================================================== */
+const CAR_LENGTH = 5;      
 const CAR_YAW = 0;         
 const HIDE = [];           
 const AUTO_HIDE_FLAT = true; 
-const ROOM = 20, ROOM_H = 8;
+const ROOM = 20, ROOM_H = 8; 
+const PAINT_COLOR = null; 
 
-/*----------الگوی چرخش دوربین--------*/
-/* Camera path. angle: 0 = front, 90 = car's left, 180 = rear, 270 = right.
-   lx/ly/lz = point the camera looks at, pan = slide the frame sideways (car moves left on screen),
-   roll = dutch tilt in degrees, fov = lens. */
+const FX = {
+  hardwip:true,
+  impact:true,
+  slash:true,
+  letters:true,
+  glitch:true,
+  streaks:true,
+};
+
 const KEYS = [
   { angle: 28,  radius: 9.5,  height: 0.75, lx: 0,    ly: 0.62, lz: 0,     fov: 32, roll: -2, pan: 0   },  // 1 low front 3/4  (intro)
-  { angle: 90,  radius: 12,   height: 0.95, lx: 0,    ly: 0.95, lz: 0,     fov: 24, roll: 0,  pan: 1.9 },  // 2 side profile   (specs)
+  { angle: 90,  radius: 12,   height: 0.95, lx: 0,    ly: 0.70, lz: 0,     fov: 24, roll: 0,  pan: 1.9 },  // 2 side profile   (specs)
   { angle: 152, radius: 6.2,  height: 0.55, lx: 0,    ly: 0.55, lz: -0.6,  fov: 38, roll: 4,  pan: 0   },  // 3 low rear dutch (taillights)
   { angle: 252, radius: 3.6,  height: 0.50, lx: -0.95,ly: 0.40, lz: -1.55, fov: 30, roll: -2, pan: 0   },  // 4 rear wheel     (grip)
   { angle: 318, radius: 4.6,  height: 1.90, lx: 0,    ly: 1.00, lz: 1.0,   fov: 26, roll: 3,  pan: 0   },  // 5 hood           (breathe)
   { angle: 360, radius: 5.2,  height: 0.55, lx: 0,    ly: 0.60, lz: 0,     fov: 50, roll: 0,  pan: 0   },  // 6 head-on, wide  (launch)
   { angle: 405, radius: 11,   height: 2.40, lx: 0,    ly: 0.70, lz: 0,     fov: 27, roll: 0,  pan: 0   },  // 7 hero pull-back (final)
 ];
+/*----------------------------------------------------------------------*/
 
-/*----------صحنه های فیلم برداری----------*/
+/* =====================================================================
+   ساخت رندر و تنظیم کیفیت نمایش سه بعدی
+   ===================================================================== */
 const canvas   = document.querySelector('#scene');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 const isMobile = matchMedia('(max-width: 820px)').matches;
+// weak phones / old laptops automatically get a lighter version (and any PC that is too slow is lightened after 3 seconds)
 const LOW = isMobile || (navigator.hardwareConcurrency || 8) <= 4 || (navigator.deviceMemory || 8) <= 4;
-renderer.setPixelRatio(Math.min(devicePixelRatio, LOW ? 1.25 : 2));
+renderer.setPixelRatio(Math.min(devicePixelRatio, LOW ? 1.25 : 1.5));
 renderer.outputColorSpace = THREE.SRGBColorSpace;
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.05;
+renderer.toneMapping = THREE.NeutralToneMapping;   // keeps the model's real colours (no orange/grey shift)
+renderer.toneMappingExposure = 1.0;
 renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.type = THREE.PCFShadowMap;
 renderer.localClippingEnabled = true;           // used to cut everything below the floor
 
-const scene  = new THREE.Scene();
+/*===================================================================
+ساخت صحنه و دوربین و نورپردازی
+=====================================================================*/
+const scene  = new THREE.Scene();     //ایجاد صحنه سه بعدی
 scene.background = new THREE.Color(0xdcd8d1);
 const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 150);
 
@@ -48,19 +61,23 @@ const pmrem = new THREE.PMREMGenerator(renderer);
 scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
 scene.environmentIntensity = 0.95;
 
-// lights: warm sun + orange rim + cool fill
+// lights: all neutral white, so they never tint your model's colour
 scene.add(new THREE.HemisphereLight(0xffffff, 0xd8d0c4, 0.55));
-const sun = new THREE.DirectionalLight(0xfff1e0, 2.4);
+const sun = new THREE.DirectionalLight(0xffffff, 2.4);
 sun.position.set(6, 9, 5);
 sun.castShadow = true;
-sun.shadow.mapSize.set(LOW ? 1024 : 2048, LOW ? 1024 : 2048);
+sun.shadow.mapSize.set(LOW ? 1024 : 1024, LOW ? 1024 : 1024);
 Object.assign(sun.shadow.camera, { left: -6, right: 6, top: 6, bottom: -6, near: 1, far: 25 });
 sun.shadow.bias = -0.0004;
 scene.add(sun);
-const rim = new THREE.PointLight(0xff6a13, 60, 18, 2); rim.position.set(6, 1.2, -6); scene.add(rim);
-const fill = new THREE.PointLight(0xdfeaff, 55, 20, 2); fill.position.set(-7, 2.6, 5); scene.add(fill);
+const rim = new THREE.PointLight(0xffffff, 45, 18, 2); rim.position.set(6, 1.2, -6); scene.add(rim);
+const fill = new THREE.PointLight(0xffffff, 40, 20, 2); fill.position.set(-7, 2.6, 5); scene.add(fill);
+// small highlight light used by Explore mode (created now, intensity 0, so no shader recompiling later)
+const partLight = new THREE.PointLight(0xffffff, 0, 7, 2); scene.add(partLight);
 
-/*========================ساخت گاراژ==================*/
+/* =====================================================================
+   ساخت بافتها و محیط سه بعدی گاراژ
+   ===================================================================== */
 const rnd = (s = 1) => () => { s |= 0; s = s + 0x6D2B79F5 | 0; let t = Math.imul(s ^ s >>> 15, 1 | s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
 function tex(w, h, draw) {
   const c = document.createElement('canvas'); c.width = w; c.height = h;
@@ -108,7 +125,7 @@ const wallTex = {
     g.font = `italic 900 ${px * 1.6}px Impact, "Arial Black", sans-serif`; g.fillText('SINCE 1970', sx, (Y(6.2) + Y(4.4)) / 2 + 4);
     g.shadowBlur = 0; g.fillRect(sx - px * 4, Y(4.25), px * 8, 5);
   }),
-  front: tex(2048, 410, (g, w, h) => {                      // چرخش گاراژ
+  front: tex(2048, 410, (g, w, h) => {                      // roll-up garage door
     const { px, Y } = wallBase(g, w, h);
     const x0 = w / 2 - px * 8, dw = px * 16, y0 = Y(6.0), y1 = Y(0.5);
     g.fillStyle = '#25211e'; g.fillRect(x0 - 10, y0 - 10, dw + 20, y1 - y0 + 10);
@@ -120,7 +137,7 @@ const wallTex = {
     const lg = g.createLinearGradient(0, y1 - px * 1.4, 0, y1); lg.addColorStop(0, 'rgba(255,255,255,0)'); lg.addColorStop(1, 'rgba(255,255,255,.75)');
     g.fillStyle = lg; g.fillRect(x0, y1 - px * 1.4, dw, px * 1.4);
   }),
-  left: tex(2048, 410, (g, w, h) => {                       // تابش نور از پنجره ها
+  left: tex(2048, 410, (g, w, h) => {                       // big daylight windows
     const { px, Y } = wallBase(g, w, h);
     for (let k = 0; k < 6; k++) {
       const cx = w / 2 + (k - 2.5) * px * 5.6, x = cx - px * 1.7, y = Y(6.4), ww = px * 3.4, hh = Y(3.4) - Y(6.4);
@@ -146,7 +163,7 @@ const wallTex = {
 
 const floorTex = tex(2048, 2048, (g, S) => {
   const R = rnd(5), X = x => (x + ROOM) / (ROOM * 2) * S, ppu = S / (ROOM * 2);
-  const rg = g.createRadialGradient(S / 2, S / 2, 0, S / 2, S / 2, S * .72); rg.addColorStop(0, '#ece9e3'); rg.addColorStop(1, '#bfbab2');
+  const rg = g.createRadialGradient(S / 2, S / 2, 0, S / 2, S / 2, S * .72); rg.addColorStop(0, '#5d6066'); rg.addColorStop(1, '#45484d');
   g.fillStyle = rg; g.fillRect(0, 0, S, S);
   for (let i = 0; i < 16000; i++) { g.fillStyle = `rgba(${R() > .5 ? '255,255,255' : '40,32,24'},${.03 + R() * .06})`; g.fillRect(R() * S, R() * S, 1 + R() * 3, 1 + R() * 3); }
   g.fillStyle = 'rgba(0,0,0,.14)'; for (let u = -ROOM; u <= ROOM; u += 5) { g.fillRect(X(u) - 1, 0, 2, S); g.fillRect(0, X(u) - 1, S, 2); }
@@ -189,12 +206,12 @@ function buildGarage() {
     const b = new THREE.Mesh(new THREE.BoxGeometry(.07, .07, ROOM * 2), orMat); b.position.set(s * (ROOM - .05), 7.2, 0); grp.add(b);
   }
 
-  // ایینه ای شدن کف زمین
+  // floor (semi-transparent so the mirrored car shows through as a reflection)
   const floor = new THREE.Mesh(new THREE.PlaneGeometry(ROOM * 2, ROOM * 2),
-    new THREE.MeshStandardMaterial({ map: floorTex, roughness: .4, metalness: 0, transparent: true, opacity: LOW ? 1 : .8, envMapIntensity: .5 }));
+    new THREE.MeshStandardMaterial({ map: floorTex, roughness: .4, metalness: 0, transparent: true, opacity: 1, envMapIntensity: .5 }));
   floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; grp.add(floor);
 
-  // رد تایر ها کف زمین
+  // props: tire stacks + toolbox
   const tireMat = new THREE.MeshStandardMaterial({ color: 0x1b1a19, roughness: .85 });
   const tire = new THREE.TorusGeometry(.42, .17, 14, 28);
   for (const [x, z, n] of [[-15, -16.5, 5], [-13.6, -16.8, 3], [15, 16.5, 4], [-16.5, 12, 4], [16.5, -10, 3]]) for (let i = 0; i < n; i++) {
@@ -206,36 +223,41 @@ function buildGarage() {
 }
 scene.add(buildGarage());
 
-// ساخت سایه زیر ماشین
+/*======================================================================
+ایجاد سایه محو زیر خودرو
+========================================================================*/
 const blobCanvas = document.createElement('canvas'); blobCanvas.width = blobCanvas.height = 256;
 const bctx = blobCanvas.getContext('2d'), bg = bctx.createRadialGradient(128, 128, 0, 128, 128, 128);
 bg.addColorStop(0, 'rgba(0,0,0,.6)'); bg.addColorStop(1, 'rgba(0,0,0,0)'); bctx.fillStyle = bg; bctx.fillRect(0, 0, 256, 256);
 const blob = new THREE.Mesh(new THREE.PlaneGeometry(7.2, 3.4), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(blobCanvas), transparent: true, depthWrite: false }));
 blob.rotation.x = -Math.PI / 2; blob.position.y = 0.012; scene.add(blob);
 
-/*======================لود کردن ماشین در سایت=================*/
-const loaderEl = document.getElementById('loader'), loaderNum = document.getElementById('loaderNum');
+/* =====================================================================
+   آماده سازی ابزار های بارگذاری و مدل خودرو
+   ===================================================================== */
+let explore = null;
+const loaderEl = document.getElementById('loader');
+let mirror = null, degraded = LOW;
 const keepAbove = new THREE.Plane(new THREE.Vector3(0, 1, 0), -0.01);   // y >= 0.01  (nothing under the floor)
 const keepBelow = new THREE.Plane(new THREE.Vector3(0, -1, 0), 0);      // mirror copy: y <= 0
 const withClip = (mat, plane) => { const arr = Array.isArray(mat) ? mat : [mat]; arr.forEach(m => { m.clippingPlanes = [plane]; m.clipShadows = true; }); return mat; };
 const cloneMat = m => Array.isArray(m) ? m.map(x => x.clone()) : m.clone();
 
+/*====================================================================
+ترکیب مش های ثابت برای کاهش تعداد عملیات رسم
+======================================================================*/
 function mergeStaticMeshes(root) {
+  const { mergeGeometries } = window.__BGU;
   root.updateMatrixWorld(true);
   const inv = new THREE.Matrix4().copy(root.matrixWorld).invert();
   const groups = new Map(), old = [];
   root.traverse(o => {
-    if (!o.isMesh || o.isSkinnedMesh || o.isInstancedMesh || o.morphTargetInfluences?.length || Array.isArray(o.material)) return;
-    const g = o.geometry;
-    const sig = o.material.uuid + '|' + Object.keys(g.attributes).sort().join(',') + '|' + (g.index ? 'i' : 'n');
+    if (!o.isMesh || o.isSkinnedMesh || o.isInstancedMesh || (o.morphTargetInfluences && o.morphTargetInfluences.length) || Array.isArray(o.material)) return;
+    const g = o.geometry, sig = o.material.uuid + '|' + Object.keys(g.attributes).sort().join(',') + '|' + (g.index ? 'i' : 'n');
     if (!groups.has(sig)) groups.set(sig, { material: o.material, geos: [] });
-    const c = g.clone(), m = new THREE.Matrix4().multiplyMatrices(inv, o.matrixWorld);
-    c.applyMatrix4(m);
-    if (m.determinant() < 0 && c.index) {
-      const ix = c.index.array;
-      for (let i = 0; i < ix.length; i += 3) { const t = ix[i]; ix[i] = ix[i + 2]; ix[i + 2] = t; }
-      c.index.needsUpdate = true;
-    }
+    const c = g.clone(), mtx = new THREE.Matrix4().multiplyMatrices(inv, o.matrixWorld);
+    c.applyMatrix4(mtx);
+    if (mtx.determinant() < 0 && c.index) { const ix = c.index.array; for (let i = 0; i < ix.length; i += 3) { const t = ix[i]; ix[i] = ix[i + 2]; ix[i + 2] = t; } c.index.needsUpdate = true; }
     groups.get(sig).geos.push(c); old.push(o);
   });
   old.forEach(o => o.parent && o.parent.remove(o));
@@ -244,8 +266,19 @@ function mergeStaticMeshes(root) {
     if (merged) root.add(new THREE.Mesh(merged, material));
   }
 }
-let mirror = null, carReady = false;
-new GLTFLoader().load(MODEL_URL, (gltf) => {
+let carReady = false;
+
+/*==================================================================
+تبدیل داده های متنی مدل خودرو به داده های قابل بارگذاری
+====================================================================*/
+function decodeModel() {
+  const parts = window.CAR_GLB, sizes = parts.map(p => p.length * 3 / 4);
+  const total = Math.floor(sizes.reduce((a, b) => a + b, 0)), out = new Uint8Array(total + 8);
+  let pos = 0;
+  for (const p of parts) { const bin = atob(p); for (let i = 0; i < bin.length; i++) out[pos++] = bin.charCodeAt(i); }
+  return out.buffer.slice(0, pos);
+}
+new GLTFLoader().parse(decodeModel(), '', (gltf) => {
   const car = gltf.scene, carRoot = new THREE.Group();
   carRoot.add(car);
 
@@ -262,7 +295,6 @@ new GLTFLoader().load(MODEL_URL, (gltf) => {
     }
   });
   trash.forEach(o => o.parent && o.parent.remove(o));
-  mergeStaticMeshes(car);
 
   // 2) make the length run along Z, scale, centre, sit on the floor
   let box = new THREE.Box3().setFromObject(car), size = box.getSize(new THREE.Vector3());
@@ -274,22 +306,58 @@ new GLTFLoader().load(MODEL_URL, (gltf) => {
   car.position.set(-ctr.x, -box.min.y, -ctr.z);
   carRoot.rotation.y = THREE.MathUtils.degToRad(CAR_YAW);
 
+    // body paint: the colour swatches in Explore mode change this material
+  let paintMat = null;
+  car.traverse(o => { if (o.isMesh && !paintMat && /Paint_Material/i.test(o.material.name || '')) paintMat = o.material; });
+  if (paintMat) {
+    paintMat.envMap = scene.environment;   // needed so the next line works on this material only
+    paintMat.envMapIntensity = 0.3;        // less white reflection = deeper colour
+    paintMat.roughness = 0.2;
+    paintMat.clearcoat = 0.8;
+    paintMat.clearcoatRoughness = 0.1;
+    const swatches = document.querySelectorAll('.ex-color');
+    swatches.forEach(btn => btn.addEventListener('click', () => {
+      paintMat.color.set(btn.dataset.color);
+      swatches.forEach(b => b.classList.toggle('on', b === btn));
+    }));
+  }
+  
   car.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; withClip(o.material, keepAbove); } });
   scene.add(carRoot);
 
-  // 3) fake floor reflection: mirrored copy below the floor (cut at y = 0)
-  if (!LOW) {
-    mirror = carRoot.clone(true);
+  // 3) Explore Car mode: finds the parts (hood, doors, engine...) and puts them on hinges
+  explore = createExplore({
+    scene, camera, canvas, carRoot, light: partLight,
+    getFit: () => fit, getMirror: () => mirror, isDegraded: () => degraded,
+    getView: () => ({ pos: camera.position.clone(), target: tgt.clone(), fov: camera.fov }),
+    getFinalPose: () => { const k = KEYS[KEYS.length - 1], a = THREE.MathUtils.degToRad(k.angle), r = k.radius * fit;
+      return { pos: new THREE.Vector3(k.lx + Math.sin(a) * r, Math.max(k.height, 0.4), k.lz + Math.cos(a) * r), target: new THREE.Vector3(k.lx, k.ly, k.lz), fov: k.fov }; },
+  });
+  window.explore = explore;
+
+  // 4) speed: glue the ~600 loose meshes of the body into a few big ones (the parts above stay separate)
+  mergeStaticMeshes(car);
+  car.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+
+  // 5) mirrored copy below the floor (cut at y = 0)
+  if (false) {
+    const cache = new Map(), mat = (m0) => { if (!cache.has(m0.uuid)) cache.set(m0.uuid, withClip(m0.clone(), keepBelow)); return cache.get(m0.uuid); };
+    mirror = new THREE.Group();
+    mirror.add(carRoot.clone(true), explore.partsRoot.clone(true));
     mirror.scale.y = -1;
-    mirror.traverse(o => { if (o.isMesh) { o.castShadow = false; o.receiveShadow = false; o.material = withClip(cloneMat(o.material), keepBelow); } });
+    mirror.traverse(o => { if (o.isMesh) { o.castShadow = false; o.receiveShadow = false; o.material = Array.isArray(o.material) ? o.material.map(mat) : mat(o.material); } });
     scene.add(mirror);
   }
 
   carReady = true;
-}, (e) => { if (e.total) loaderNum.textContent = Math.round(e.loaded / e.total * 100); },
-(err) => { console.error('GLB failed to load:', err); loaderNum.textContent = '!'; });
+  loaderEl.classList.add('done');
+  gsap.from('.slide:first-of-type .c', { yPercent: 130, xPercent: -30, skewX: -28, opacity: 0, duration: .7, stagger: .045, ease: 'expo.out', delay: .15 });
+  gsap.from('.slide:first-of-type .w', { yPercent: 115, duration: .9, stagger: .06, ease: 'power3.out', delay: .9 });
+}, (err) => { console.error('GLB failed to load:', err); loaderEl.classList.add('done'); });
 
-/*========================فونت و نحوه نمایش متن ها==================*/
+/* =====================================================================
+   تقسیم نوشته ها به کلمات و حروف برای انیمیش
+   ===================================================================== */
 function splitWords(el) {
   Array.from(el.childNodes).forEach(n => {
     if (n.nodeType === 3) {
@@ -306,24 +374,30 @@ function splitWords(el) {
   });
 }
 document.querySelectorAll('.quote').forEach(splitWords);
-
-setTimeout(() => loaderEl.classList.add('done'), 300);
-gsap.from('.slide:first-of-type .word', { opacity: 0, x: -60, duration: 1.2, ease: 'power3.out', delay: .25 });
-gsap.from('.slide:first-of-type .w', { yPercent: 115, duration: .9, stagger: .06, ease: 'power3.out', delay: .9 });
-
-/* =====================================================================
-           اسکرول کردن بخش تایم لاین در main
-   ===================================================================== */
-const cam = { ...KEYS[0] };
-let velTarget = 0, vel = 0;
-
-const tl = gsap.timeline({
-  defaults: { ease: 'none' },
-  scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom bottom', scrub: 1.2, onUpdate: (self) => { velTarget = self.getVelocity(); } }
+// big titles: split into letters for the "slam" entrance
+document.querySelectorAll('.word').forEach(el => {
+  const txt = el.textContent; el.textContent = '';
+  for (const ch of txt) {
+    if (ch === ' ') { el.append(' '); continue; }
+    const mk = document.createElement('span'); mk.className = 'cmask';
+    const c = document.createElement('span'); c.className = 'c'; c.textContent = ch; mk.append(c); el.append(mk);
+  }
 });
 
-// camera: hold on each scene, then whip to the next one
-KEYS.slice(1).forEach((k, i) => tl.to(cam, { ...k, duration: .7, ease: 'power3.inOut' }, i + .15));
+/* =====================================================================
+          SCROLL TIMELINE  
+   ===================================================================== */
+const cam = { ...KEYS[0] };
+let velTarget = 0, vel = 0, kick = 0;
+//کنترل نمایش دوربین,اسلایدها و مشخصات خودرو هنگام اسکرول
+const tl = gsap.timeline({
+  defaults: { ease: 'none' },
+  scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom bottom', scrub: 1, onUpdate: (self) => { velTarget = self.getVelocity(); } }
+});
+//دوربین
+KEYS.slice(1).forEach((k,i)=>{
+  tl.to(cam,{...k,buration:.9, ease:'sine.in0ut'},i+ .15);
+});
 
 // slides
 const slides = gsap.utils.toArray('.slide');
@@ -333,6 +407,7 @@ slides.forEach((el, i) => {
     tl.fromTo(el, { autoAlpha: 0 }, { autoAlpha: 1, duration: .22, ease: 'power2.out' }, i - .35);
     tl.fromTo(parts, { y: 50 }, { y: 0, duration: .35, ease: 'power3.out' }, i - .35);
     tl.fromTo(el.querySelectorAll('.w'), { yPercent: 115 }, { yPercent: 0, duration: .3, stagger: .025, ease: 'power3.out' }, i - .3);
+    tl.fromTo(el.querySelectorAll('.c'), { yPercent: 130, xPercent: -30, skewX: -28, opacity: 0 }, { yPercent: 0, xPercent: 0, skewX: 0, opacity: 1, duration: .26, stagger: .02, ease: 'expo.out' }, i - .33);
   }
   if (i < slides.length - 1) {
     tl.to(el, { autoAlpha: 0, duration: .22, ease: 'power2.in' }, i + .16);
@@ -351,24 +426,19 @@ const rpm = document.getElementById('hudRpm');
 for (let i = 0; i < 24; i++) { const s = document.createElement('i'); rpm.append(s); }
 const rpmBars = Array.from(rpm.children), hudSpeed = document.getElementById('hudSpeed');
 const sp = { v: 0 };
-tl.fromTo(sp, { v: 0 }, { v: 168, duration: .6, ease: 'power2.in', onUpdate: () => {
-  hudSpeed.textContent = Math.round(sp.v);
-  const n = Math.round(sp.v / 168 * rpmBars.length);
-  rpmBars.forEach((b, i) => b.classList.toggle('on', i < n));
-} }, 4.5);
-tl.to('#speedlines', { opacity: .6, duration: .3, ease: 'power1.in' }, 4.7);
-tl.to('#speedlines', { opacity: 0, duration: .3, ease: 'power1.out' }, 5.15);
-
 tl.to('.bar-bottom .hint', { autoAlpha: 0, duration: .2 }, 0);
 tl.to('.progress span', { scaleY: 1, duration: KEYS.length - 1 }, 0);
 
-/*=========================ثابت ماندن نوبار در جای خودش=====================*/
+/* =====================================================================
+   NAVBAR (always on top,کتنرل نوبار و دکمه اکسپلور
+   ===================================================================== */
 const nav = document.getElementById('nav');
 addEventListener('scroll', () => nav.classList.toggle('solid', scrollY > 10), { passive: true });
 
 const links = Array.from(document.querySelectorAll('[data-target]'));
 links.forEach(a => a.addEventListener('click', (e) => {
   e.preventDefault();
+  if (explore && explore.active) explore.exit({ instant: true });   // leave Explore mode first
   const id = a.dataset.target, el = document.getElementById(id);
   window.scrollTo({ top: id === 'hero' ? 0 : el.offsetTop, behavior: 'smooth' });
 }));
@@ -377,26 +447,53 @@ links.forEach(a => a.addEventListener('click', (e) => {
   onToggle: (s) => { if (s.isActive) document.querySelectorAll('.nav nav a').forEach(a => a.classList.toggle('active', a.dataset.target === id)); }
 }));
 
-document.getElementById('exploreBtn').addEventListener('click', () => {
-  window.scrollTo({ top: document.getElementById('about').offsetTop, behavior: 'smooth' });
-  window.dispatchEvent(new CustomEvent('explore-car'));
+document.getElementById('exploreBtn').addEventListener('click', () => { if (explore) explore.enter(); });
+//انیمیشن تایم لاین
+// reveals (inside the timeline they also fade out again when you scroll back up)
+gsap.utils.toArray('.reveal').forEach(el => gsap.from(el, { y: 60, opacity: 0, duration: 1, ease: 'power3.out',
+  scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: el.closest('.timeline') ? 'play none none reverse' : 'play none none none' } }));
+
+// timeline: wrap the year text in a span so it can animate on its own
+document.querySelectorAll('.tl-item time').forEach(t => {
+  const s = document.createElement('span');
+  s.className = 'tl-year';
+  s.textContent = t.firstChild.textContent.trim();
+  t.firstChild.replaceWith(s);
 });
 
-// reveals
-gsap.utils.toArray('.reveal').forEach(el => gsap.from(el, { y: 60, opacity: 0, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 85%' } }));
-gsap.utils.toArray('.tl-item').forEach(el => gsap.from(el, { y: 70, opacity: 0, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 82%' } }));
+// timeline: year -> car -> text, and it plays backwards when you scroll up
+gsap.utils.toArray('.tl-item').forEach((el) => {
+  const tlBox = document.querySelector('.tl'), carEl = el.querySelector('.tl-car');
+  const side = carEl.getBoundingClientRect().left + carEl.offsetWidth / 2 < tlBox.getBoundingClientRect().left + tlBox.offsetWidth / 2 ? -80 : 80;
+  gsap.timeline({ scrollTrigger: { trigger: el, start: 'top 82%', toggleActions: 'play none none reverse' } })
+    .from(el.querySelector('.tl-year'), { y: 50, opacity: 0, duration: .7, ease: 'power3.out' })
+    .from(el.querySelector('.tl-car'),  { x: side, opacity: 0, duration: .8, ease: 'power3.out' }, '-=.2')
+    .from(el.querySelector(':scope > div'), { y: 40, opacity: 0, duration: .7, ease: 'power3.out' }, '-=.5');
+});
+
 gsap.to('#tlFill', { scaleY: 1, ease: 'none', scrollTrigger: { trigger: '.tl', start: 'top 60%', end: 'bottom 60%', scrub: true } });
 
-// contact form -> opens the visitor's mail app (change the address below)
-const CONTACT_EMAIL = 'hello@example.com';
-document.getElementById('contactForm').addEventListener('submit', (e) => {
-  e.preventDefault();
-  const f = new FormData(e.target);
-  location.href = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('Message from ' + f.get('name'))}&body=${encodeURIComponent(f.get('message') + '\n\n' + f.get('email'))}`;
+// Let's talk: حرف‌ها یکی‌یکی از پایین بالا میان، بعد horsepower سفید می‌شه
+document.querySelectorAll('.talk .ln').forEach(function split(node) {
+  [...node.childNodes].forEach(n => {
+    if (n.nodeType === 3) {
+      const frag = document.createDocumentFragment();
+      [...n.textContent].forEach(t => {
+        const s = document.createElement('span');
+        s.className = 'ch';
+        s.textContent = t === ' ' ? '\u00a0' : t;
+        frag.append(s);
+      });
+      n.replaceWith(frag);
+    } else split(n);
+  });
 });
 
+gsap.timeline({ scrollTrigger: { trigger: '.talk', start: 'top 80%' } })
+  .from('.talk .ch', { yPercent: 110, rotate: 8, skewX: -20, opacity: 0, duration: .9, stagger: .04, ease: 'expo.out' })
+  .to('.talk em .ch', { color: '#fff', duration: .4, stagger: .05, ease: 'none' }, '-=.3');
 /* =====================================================================
-   حلقه نمایش ماشین و چرخش دوربین
+   RENDER LOOP: cinematic camera (orbit + dutch roll + lens + handheld shake)
    ===================================================================== */
 let fit = 1, panScale = 1;
 function resize() {
@@ -410,27 +507,39 @@ addEventListener('resize', resize); resize();
 
 const tmpR = new THREE.Vector3(), UP = new THREE.Vector3(0, 1, 0), tgt = new THREE.Vector3(), pos = new THREE.Vector3();
 const clock = new THREE.Clock();
-let fpsFrames = 0, fpsStart = 0, degraded = LOW;
+let lastT = 0, fpsFrames = 0, fpsStart = 0;
 function checkFps(now) {
   if (degraded || !carReady) return;
-  if (++fpsFrames === 60) fpsStart = now;            // skip the first 60 frames (shader compile)
+  if (++fpsFrames === 60) fpsStart = now;              // skip the first 60 frames (shaders compiling)
   if (fpsFrames === 180) {
     const fps = 120 / ((now - fpsStart) / 1000);
-    if (fps < 40) {                                  // weak system: lighten the scene
-      degraded = true;
-      renderer.setPixelRatio(1); resize();
+    if (fps < 40) {                                    // weak system: make the scene lighter
+      degraded = true; renderer.setPixelRatio(1); resize();
       if (mirror) mirror.visible = false;
       sun.castShadow = false;
     }
   }
 }
+const stageEl = document.querySelector('.stage'), streaksEl = document.getElementById('streaks');
+let lastG = -1;
 renderer.setAnimationLoop((now) => {
   checkFps(now);
-  const t = clock.getElapsedTime();
+  if (!(explore && explore.active) && scrollY > document.getElementById('hero').offsetHeight)return;
+  const t = clock.getElapsedTime(), dt = Math.min(t - lastT, 0.1); lastT = t;
+
+  // EXPLORE MODE: the visitor controls the camera
+  if (explore && explore.active) {
+    explore.update(dt);
+    explore.applyCamera();
+    explore.updateHotspots();
+    renderer.render(scene, camera);
+    return;
+  }
+
   velTarget *= 0.9; vel += (velTarget - vel) * 0.12;
   const speed = Math.min(Math.abs(vel) / 1800, 1);                       // 0..1 how fast the user scrolls
 
-  const a = THREE.MathUtils.degToRad(cam.angle + Math.sin(t * .35) * .5); // slow idle drift
+  const a = THREE.MathUtils.degToRad(cam.angle * .5); // slow idle drift
   const r = cam.radius * fit;
   tgt.set(cam.lx, cam.ly, cam.lz);
   pos.set(cam.lx + Math.sin(a) * r, Math.max(cam.height, 0.4), cam.lz + Math.cos(a) * r);   // never lower than the car's underside
@@ -439,15 +548,18 @@ renderer.setAnimationLoop((now) => {
   tmpR.copy(tgt).sub(pos).normalize().cross(UP).normalize().multiplyScalar(cam.pan * panScale);
   tgt.add(tmpR); pos.add(tmpR);
 
-  // handheld shake grows with scroll speed
-  const sh = 0.004 + speed * 0.035;
+  // IMPACT: every time the camera lands on a new scene it "hits" -> shake + lens punch + RGB-split on the title
+  kick *= 0.9;
+  const sh = 0;
   pos.x += Math.sin(t * 9.1) * sh; pos.y += Math.sin(t * 11.3 + 1) * sh * .6; pos.z += Math.cos(t * 8.2) * sh;
 
   camera.position.copy(pos);
   camera.lookAt(tgt);
-  camera.rotateZ(THREE.MathUtils.degToRad(cam.roll + Math.sin(t * 1.3) * .25 + vel / 9000));
-  camera.fov = cam.fov + speed * 7;                                      // lens "punch" when scrolling fast
+  camera.rotateZ(THREE.MathUtils.degToRad(cam.roll));
+  camera.fov = cam.fov;                           // lens "punch" when scrolling fast / landing
   camera.updateProjectionMatrix();
 
   renderer.render(scene, camera);
 });
+
+})();
