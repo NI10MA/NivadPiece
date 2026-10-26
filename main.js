@@ -473,6 +473,18 @@ gsap.utils.toArray('.tl-item').forEach((el) => {
 
 gsap.to('#tlFill', { scaleY: 1, ease: 'none', scrollTrigger: { trigger: '.tl', start: 'top 60%', end: 'bottom 60%', scrub: true } });
 
+//انیمیشن موجی موج شدن فوتر
+// waves above the footer: they speed up while you scroll fast, then calm down
+const waveAnims = document.querySelector('.wave-footer-wrap').getAnimations({ subtree: true }).filter(a => a.animationName === 'waveMove');
+let waveRate = 1, waveBoost = 0;
+ScrollTrigger.create({ onUpdate: (s) => { waveBoost = Math.min(Math.abs(s.getVelocity()) / 700, 6); } });
+gsap.ticker.add(() => {
+  waveBoost *= 0.94;
+  const r = 1 + waveBoost;
+  if (Math.abs(r - waveRate) > 0.01) { waveRate = r; waveAnims.forEach(a => { a.playbackRate = r; }); }
+});
+
+
 // Let's talk: حرف‌ها یکی‌یکی از پایین بالا میان، بعد horsepower سفید می‌شه
 document.querySelectorAll('.talk .ln').forEach(function split(node) {
   [...node.childNodes].forEach(n => {
