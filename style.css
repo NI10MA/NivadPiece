@@ -1744,7 +1744,7 @@ html.ex-lock{
   z-index:-1;
   background:
     radial-gradient(ellipse at 0% 100%,rgba(255,106,19,.28),transparent 55%),
-    url("cars/2020.png") left bottom/auto 60% no-repeat;
+    url("cars/2020.webp") left bottom/auto 60% no-repeat;
   opacity:.45;
   -webkit-mask-image:linear-gradient(to right,#000 25%,transparent 70%);
   mask-image:linear-gradient(to right,#000 25%,transparent 70%);
