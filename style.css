@@ -1640,10 +1640,64 @@ html.ex-lock{
   .footer-bottom{flex-direction:column;gap:10px}
 }
 
+
+/*=====================انیمیشن موج موجی شدن بالای فوتر===================*/
+
+.wave-footer-wrap{
+  position:relative;
+  width:100%;
+  height:100px;
+  overflow:hidden;
+  line-height:0;
+  direction:ltr;
+  background:var(--accent);
+}
+.wave-footer-svg{
+  position:absolute;
+  top:0;
+  left:0;
+  width:200%;
+  height:calc(100% + 14px);
+  display:block;
+  animation:waveBob 5s ease-in-out infinite alternate;
+}
+.wave-path{fill:#000}
+.wave-back{
+  opacity:.25;
+  animation:waveMove 20s linear infinite reverse;
+}
+.wave-mid{
+  opacity:.55;
+  animation:waveMove 13s linear infinite;
+}
+.wave-front{
+  animation:waveMove 8s linear infinite;
+}
+.wave-rim{
+  fill:none;
+  stroke:#ffd2a8;
+  stroke-width:2.5;
+  vector-effect:non-scaling-stroke;
+  filter:drop-shadow(0 0 6px rgba(255,210,168,.9));
+  animation:waveMove 8s linear infinite;
+}
+@keyframes waveMove{
+  from{transform:translateX(0)}
+  to{transform:translateX(-1200px)}
+}
+
+@keyframes waveBob{
+  from{transform:translateY(0)}
+  to{transform:translateY(-10px)}
+}
+@media (max-width:768px){
+  .wave-footer-wrap{height:70px}
+}
+
 @media (max-width:480px){
   .wave-footer-wrap{height:50px}
 }
-
+/*HEAD*/
 /* explore mode on short desktop screens */
 @media (min-width:821px) and (max-height:680px){
   .ex-side{
@@ -1670,3 +1724,245 @@ html.ex-lock{
 }
 
 @media (prefers-reduced-motion:reduce){.grain{animation:none}.fx.slash,.fx.flash{display:none}}
+
+/*===================footer=================*/
+/* ---------- footer (glass) ---------- */
+.footer{
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+  margin-top:-1px;
+  padding:36px 6% 0;
+  color:var(--text);
+  background:linear-gradient(180deg,#000 0,rgba(255,255,255,.03) 160px);
+}
+
+.footer::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  background:
+    radial-gradient(ellipse at 0% 100%,rgba(255,106,19,.28),transparent 55%),
+    url("cars/2020.png") left bottom/auto 60% no-repeat;
+  opacity:.45;
+  -webkit-mask-image:linear-gradient(to right,#000 25%,transparent 70%);
+  mask-image:linear-gradient(to right,#000 25%,transparent 70%);
+}
+
+.footer-top{
+  display:grid;
+  grid-template-columns:1.6fr 1fr 1.4fr auto;
+  gap:30px;
+  padding-bottom:26px;
+  border-bottom:1px solid rgba(255,255,255,.12);
+}
+
+.footer-brand{
+  display:flex;
+  align-items:center;
+  gap:24px;
+}
+
+.footer-logo{
+  display:grid;
+  place-items:center;
+  width:92px;
+  height:92px;
+  border:2px solid var(--orange);
+  border-radius:22px;
+  color:var(--orange);
+  font:italic 400 64px var(--display);
+}
+
+/* انیمیشن NIVAD CORP: درخشش عبوری + پالس نور */
+
+.footer-name{
+  --glow:0 0 4px #fff,0 0 10px #ff6a13,0 0 22px #ff6a13,0 0 44px #ff4d00,0 0 80px #ff4d00;
+  --dim:0 0 2px #ff6a13,0 0 2px #ff6a13,0 0 2px #ff6a13,0 0 2px #ff4d00,0 0 2px #ff4d00;
+  display:inline-block;
+  font:400 clamp(30px,3vw,42px)/1 var(--display);
+  letter-spacing:.12em;
+  text-decoration:none;
+  color:#fff0e4;
+  text-shadow:var(--glow);
+  transform-origin:left center;
+  animation:neonFlicker 3.2s linear infinite,neonPulse 1.8s ease-in-out infinite alternate;
+}
+
+@keyframes neonPulse{
+  from{transform:scale(1)}
+  to{transform:scale(1.1)}
+}
+
+@keyframes neonFlicker{
+  0%,17%,23%,50%,56%,100%{color:#fff0e4;text-shadow:var(--glow);opacity:1}
+  20%,54%{color:#ffa176;text-shadow:var(--dim);opacity:.8}
+  35%,72%{color:#ff7a2a;text-shadow:var(--glow);opacity:1}
+}
+
+.footer-name:hover{
+  transform:scale(1.04);
+}
+
+.footer-brand p{
+  margin-top:8px;
+  font-size:13px;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+}
+
+.footer-col{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  padding-left:30px;
+  border-left:1px solid rgba(255,255,255,.12);
+}
+
+.footer-col h4{
+  margin-bottom:6px;
+  font-size:13px;
+  font-weight:600;
+  letter-spacing:.3em;
+  text-transform:uppercase;
+  color:var(--orange);
+}
+
+.footer-col a,.footer-col span{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  font-size:14px;
+  letter-spacing:.04em;
+  text-decoration:none;
+  color:var(--text);
+  transition:color .25s;
+}
+
+.footer-col a:hover{
+  color:var(--orange);
+}
+
+.f-ico{
+  width:20px;
+  height:20px;
+  flex-shrink:0;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.8;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+.to-top{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:12px;
+  padding-left:30px;
+  border:0;
+  border-left:1px solid rgba(255,255,255,.12);
+  background:none;
+  cursor:pointer;
+  color:#fff;
+  font:600 12px var(--sans);
+  letter-spacing:.3em;
+}
+
+.to-top-circle{
+  display:grid;
+  place-items:center;
+  width:60px;
+  height:60px;
+  border:2px solid var(--orange);
+  border-radius:50%;
+  color:var(--orange);
+  transition:.3s;
+}
+
+.to-top-circle .f-ico{
+  width:28px;
+  height:28px;
+}
+
+.to-top:hover .to-top-circle{
+  background:var(--orange);
+  color:#000;
+  transform:translateY(-5px);
+  box-shadow:0 0 25px rgba(255,90,10,.5);
+}
+
+.footer-mid{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:26px 0 30px 40%;
+}
+
+.tagline h2{
+  font:400 clamp(30px,3.2vw,46px)/.95 var(--display);
+  letter-spacing:.04em;
+  color:#f2f2f2;
+}
+
+.tagline h2 span{
+  color:var(--orange);
+}
+
+.tagline p{
+  margin-top:14px;
+  font-size:14px;
+  line-height:1.6;
+  letter-spacing:.03em;
+  color:rgba(255,255,255,.72);
+}
+
+.socials{
+  display:flex;
+  gap:22px;
+}
+
+.socials a{
+  color:var(--muted1);
+  transition:color .25s,transform .25s,filter .25s;
+}
+
+.socials .f-ico{
+  width:28px;
+  height:28px;
+}
+
+/* رنگ هر آیکون موقع هاور */
+.socials a:hover{
+  color:var(--hover);
+  transform:translateY(-4px);
+  filter:drop-shadow(0 0 10px var(--hover));
+}
+
+.s-gh{--hover:#facc15}
+.s-tg{--hover:#5ac8fa}
+.s-in{--hover:#1d4ed8}
+
+.footer-bottom{
+  display:flex;
+  justify-content:space-between;
+  padding:24px 0;
+  border-top:1px solid rgba(255,255,255,.12);
+  font-size:12px;
+  letter-spacing:.2em;
+  color:var(--muted1);
+  padding: 16px 0;
+}
+
+@media (max-width:1100px){
+  .footer-top{grid-template-columns:1fr 1fr}
+  .footer-brand{grid-column:1/-1}
+  .footer-col,.to-top{padding-left:0;border-left:0}
+  .to-top{align-items:flex-start}
+  .footer-mid{flex-direction:column;align-items:flex-start;gap:30px;padding:50px 0}
+}
+
+@media (max-width:600px){
+  .footer-bottom{flex-direction:column;gap:10px}
+}
