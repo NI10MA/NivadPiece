@@ -1,13 +1,8 @@
+/*شناسایی قطعات مدل,بازوبسته کردن قطعات,نمایش بخشهای موتور
+360و ترمز و تشخیص کلیک روی قطعات,کارت اطلاعات و حرکت دوربین*/
 (function(){
 "use strict";
 const THREE = window.THREE;
-
-/* =====================================================================
-   EXPLORE CAR MODE
-   - free 360° orbit (drag / pinch / wheel) that can never go under the floor
-   - clickable parts: hood, trunk, doors, fuel flap, engine, radiator, battery, tires, brake pads
-   - light on purpose: no post-processing, only a few tweens + one small light
-   ===================================================================== */
 
 /* ---- 1) PART NAMES inside challenger_work.glb ------------------------
    These are the node names found in YOUR file (spaces become "_" after loading,
@@ -322,6 +317,7 @@ function createExplore(ctx) {
   function updateHotspots() {
     const w = canvas.clientWidth, h = canvas.clientHeight;
     const detailOpen = defs.some(x => x.info && x.open);           // a detail card is showing -> calm the other dots
+    stage.classList.toggle('ex-part-open',defs.some(x => x.open));//جعبه رینگ را مخفی میکند اگر قسمتی از ماشین انتخاب شود
     for (const d of defs) {
       d.pivot.localToWorld(_p.copy(d.anchorLocal));
       const fd = d.facing.dot(_c.copy(camera.position).sub(_p).normalize());
@@ -351,7 +347,7 @@ function createExplore(ctx) {
   function resetAll() { [...defs].reverse().filter(d => d.open).forEach(close); hideCard(); fly(defaultView(), 1.4); }
   function exit({ instant = false } = {}) {
     if (!active) return;
-    interactive = false; ptrs.clear(); hideCard(); stage.classList.remove('exploring');
+    interactive = false; ptrs.clear(); hideCard(); stage.classList.remove('exploring', 'ex-part-open');
     if (light) gsap.to(light, { intensity: 0, duration: .3 });
     const done = () => { active = false; document.documentElement.classList.remove('ex-lock'); canvas.style.touchAction = ''; const mir = getMirror(); if (mir && !ctx.isDegraded()) mir.visible = true; };
     if (instant) { defs.forEach(d => { killTimer(d); gsap.killTweensOf(d); d.k = 0; d.spin = 0; d.open = false; apply(d); }); gsap.killTweensOf(orbit); orbit.roll = orbit.punch = 0; flying = false; done(); return; }

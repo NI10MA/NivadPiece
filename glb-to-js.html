@@ -20,14 +20,19 @@ document.getElementById('f').addEventListener('change', function (e) {
   var msg = document.getElementById('msg'); msg.textContent = 'Converting...';
   var r = new FileReader();
   r.onload = function () {
-    var b64 = r.result.split(',')[1], CH = 1000000, parts = [];
-    for (var i = 0; i < b64.length; i += CH) parts.push('"' + b64.slice(i, i + CH) + '"');
-    var text = '/* car model stored as text so the site opens by double-click */\nwindow.CAR_GLB=[\n' + parts.join(',\n') + '\n];\n';
-    var a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([text], { type: 'text/javascript' }));
-    a.download = 'car-model.js'; a.click();
-    msg.textContent = 'Done! car-model.js downloaded.';
+    // gzip the .glb first (about 40% smaller), then turn it into text
+    new Response(new Blob([r.result]).stream().pipeThrough(new CompressionStream('gzip'))).arrayBuffer().then(function (gz) {
+      var bytes = new Uint8Array(gz), bin = '', CH = 0x8000;
+      for (var i = 0; i < bytes.length; i += CH) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + CH));
+      var b64 = btoa(bin), parts = [];
+      for (var k = 0; k < b64.length; k += 1000000) parts.push('"' + b64.slice(k, k + 1000000) + '"');
+      var text = '/* car model stored as gzip + text so the site opens by double-click */\nwindow.CAR_GLB=[\n' + parts.join(',\n') + '\n];\n';
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([text], { type: 'text/javascript' }));
+      a.download = 'car-model.js'; a.click();
+      msg.textContent = 'Done! car-model.js downloaded.';
+    });
   };
-  r.readAsDataURL(file);
+  r.readAsArrayBuffer(file);
 });
 </script></body></html>

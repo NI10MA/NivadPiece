@@ -41,14 +41,42 @@
         <button class="ex-btn ex-exit" id="exExit" aria-label="Exit explore mode"><b>✕</b><span>Exit explore</span></button>
         <button class="ex-btn ex-reset" id="exReset" aria-label="Reset view"><b>↺</b><span>Reset</span></button>
         <p class="ex-hint">Drag to rotate &nbsp;·&nbsp; Scroll or pinch to zoom &nbsp;·&nbsp; Tap the glowing dots</p>
-        <div class="ex-colors" id="exColors" aria-label="Car color">
-          <span class="ex-color-title">Color</span>
-          <button class="ex-color" data-color="#ff6a13" style="--c:#ff6a13" aria-label="Orange"></button>
-          <button class="ex-color" data-color="#101010" style="--c:#101010" aria-label="Black"></button>
-          <button class="ex-color" data-color="#5b5f66" style="--c:#5b5f66" aria-label="Graphite"></button>
-          <button class="ex-color" data-color="#1f8f4e" style="--c:#1f8f4e" aria-label="Green"></button>
-          <button class="ex-color" data-color="#1f5fd1" style="--c:#1f5fd1" aria-label="Blue"></button>
-          <button class="ex-color" data-color="#c8080d" style="--c:#c8080d" aria-label="Light red"></button>
+        <div class="ex-side">
+          <div class="ex-colors" id="exColors" aria-label="Car color">
+            <span class="ex-color-title">Color</span>
+            <button class="ex-color" data-color="#ff6a13" style="--c:#ff6a13" aria-label="Orange"></button>
+            <button class="ex-color" data-color="#101010" style="--c:#101010" aria-label="Black"></button>
+            <button class="ex-color" data-color="#5b5f66" style="--c:#5b5f66" aria-label="Graphite"></button>
+            <button class="ex-color" data-color="#1f8f4e" style="--c:#1f8f4e" aria-label="Green"></button>
+            <button class="ex-color" data-color="#1f5fd1" style="--c:#1f5fd1" aria-label="Blue"></button>
+            <button class="ex-color" data-color="#c8080d" style="--c:#c8080d" aria-label="Light red"></button>
+          </div>
+
+          <div class="ex-rims" id="exRims" aria-label="Rims">
+            <span class="ex-color-title">Rims</span>
+            <div class="ex-rim-grid">
+              <button class="ex-rim on" data-rim="stock" style="--n:5" aria-label="Stock rims" title="Stock rims"><i></i></button>
+              <button class="ex-rim" data-rim="five" style="--n:5" aria-label="5 spoke" title="5 spoke"><i></i></button>
+              <button class="ex-rim" data-rim="seven" style="--n:7" aria-label="7 spoke" title="7 spoke"><i></i></button>
+              <button class="ex-rim" data-rim="ten" style="--n:10" aria-label="10 spoke" title="10 spoke"><i></i></button>
+              <button class="ex-rim" data-rim="twin" style="--n:12" aria-label="Twin spoke" title="Twin spoke"><i></i></button>
+              <button class="ex-rim" data-rim="double" style="--n:10" aria-label="Double spoke" title="Double spoke"><i></i></button>
+              <button class="ex-rim" data-rim="fork" style="--n:10" aria-label="Fork spoke" title="Fork spoke"><i></i></button>
+              <button class="ex-rim" data-rim="blade" style="--n:9" aria-label="Blade" title="Blade"><i></i></button>
+              <button class="ex-rim" data-rim="turbine" style="--n:11" aria-label="Turbine" title="Turbine"><i></i></button>
+              <button class="ex-rim" data-rim="mesh" style="--n:36" aria-label="Mesh" title="Mesh"><i></i></button>
+              <button class="ex-rim" data-rim="ring" style="--n:10" aria-label="Ring" title="Ring"><i></i></button>
+              <button class="ex-rim" data-rim="disc" style="--n:8" aria-label="Aero disc" title="Aero disc"><i></i></button>
+            </div>
+            <div class="ex-rim-colors">
+              <button class="ex-rimcolor on" data-color="#c9ccd1" style="--c:#c9ccd1" aria-label="Silver"></button>
+              <button class="ex-rimcolor" data-color="#16161a" style="--c:#16161a" aria-label="Black"></button>
+              <button class="ex-rimcolor" data-color="#d4a62a" style="--c:#d4a62a" aria-label="Gold"></button>
+              <button class="ex-rimcolor" data-color="#8a5a2b" style="--c:#8a5a2b" aria-label="Bronze"></button>
+              <button class="ex-rimcolor" data-color="#c8080d" style="--c:#c8080d" aria-label="Red"></button>
+              <button class="ex-rimcolor" data-color="#1f5fd1" style="--c:#1f5fd1" aria-label="Blue"></button>
+            </div>
+          </div>
         </div>
         <div class="ex-hotlayer" id="exHot"></div>
         <aside class="ex-card" id="exCard">
@@ -142,12 +170,12 @@
       <h2 class="big reveal">Fifty years<br/><em>of thunder.</em></h2>
       <ol class="tl">
         <li class="tl-line" aria-hidden="true"><span class="tl-fill" id="tlFill"></span></li>
-        <li class="tl-item"><time>1970 <img class="tl-car" src="cars/1970.png" alt="" loading="lazy"></time><div><h3>The Original</h3><p>The first Challenger arrives, with big-block V8s up to the legendary 426 HEMI.</p></div></li>
-        <li class="tl-item"><time>1974 <img class="tl-car" src="cars/1974.png" alt="" loading="lazy"></time><div><h3>Lights Out</h3><p>The first generation ends production. The nameplate goes quiet.</p></div></li>
-        <li class="tl-item"><time>2008 <img class="tl-car" src="cars/2008.png" alt="" loading="lazy"></time><div><h3>The Return</h3><p>Retro looks, modern muscle. The Challenger is reborn.</p></div></li>
-        <li class="tl-item"><time>2015 <img class="tl-car" src="cars/2015.png" alt="" loading="lazy"></time><div><h3>Hellcat</h3><p>707 supercharged horsepower and a whine you hear from three blocks away.</p></div></li>
-        <li class="tl-item"><time>2018 <img class="tl-car" src="cars/2018.png" alt="" loading="lazy"></time><div><h3>Demon</h3><p>840 horsepower, a factory drag car and a 2.3-second 0–60.</p></div></li>
-        <li class="tl-item"><time>2020 <img class="tl-car" src="cars/2020.png" alt="" loading="lazy"></time><div><h3>Super Stock</h3><p>807 horsepower, drag radials and a street-legal quarter-mile weapon.</p></div></li>
+        <li class="tl-item"><time>1970 <img class="tl-car" src="cars/1970.webp" alt="" loading="lazy"></time><div><h3>The Original</h3><p>The first Challenger arrives, with big-block V8s up to the legendary 426 HEMI.</p></div></li>
+        <li class="tl-item"><time>1974 <img class="tl-car" src="cars/1974.webp" alt="" loading="lazy"></time><div><h3>Lights Out</h3><p>The first generation ends production. The nameplate goes quiet.</p></div></li>
+        <li class="tl-item"><time>2008 <img class="tl-car" src="cars/2008.webp" alt="" loading="lazy"></time><div><h3>The Return</h3><p>Retro looks, modern muscle. The Challenger is reborn.</p></div></li>
+        <li class="tl-item"><time>2015 <img class="tl-car" src="cars/2015.webp" alt="" loading="lazy"></time><div><h3>Hellcat</h3><p>707 supercharged horsepower and a whine you hear from three blocks away.</p></div></li>
+        <li class="tl-item"><time>2018 <img class="tl-car" src="cars/2018.webp" alt="" loading="lazy"></time><div><h3>Demon</h3><p>840 horsepower, a factory drag car and a 2.3-second 0–60.</p></div></li>
+        <li class="tl-item"><time>2020 <img class="tl-car" src="cars/2020.webp" alt="" loading="lazy"></time><div><h3>Super Stock</h3><p>807 horsepower, drag radials and a street-legal quarter-mile weapon.</p></div></li>
       </ol>
     </div>
   </section>
@@ -160,13 +188,86 @@
     </h2>
   </section>
   
-  
+    <!-- ================= WAVE ================= -->
+  <div class="wave-footer-wrap" aria-hidden="true">
+    <svg class="wave-footer-svg" viewBox="0 0 2400 220" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path class="wave-path wave-back"
+        d="M0,110 C200,180 400,40 600,110 C800,180 1000,40 1200,110 C1400,180 1600,40 1800,110 C2000,180 2200,40 2400,110 L2400,220 L0,220 Z" />
+      <path class="wave-path wave-mid"
+        d="M0,120 C100,85 200,155 300,120 C400,85 500,155 600,120 C700,85 800,155 900,120 C1000,85 1100,155 1200,120 C1300,85 1400,155 1500,120 C1600,85 1700,155 1800,120 C1900,85 2000,155 2100,120 C2200,85 2300,155 2400,120 L2400,220 L0,220 Z" />
+      <path class="wave-path wave-front"
+        d="M0,130 C200,60 400,190 600,130 C800,60 1000,190 1200,130 C1400,60 1600,190 1800,130 C2000,60 2200,190 2400,130 L2400,220 L0,220 Z" />
+      <path class="wave-rim"
+        d="M0,130 C200,60 400,190 600,130 C800,60 1000,190 1200,130 C1400,60 1600,190 1800,130 C2000,60 2200,190 2400,130" />
+    </svg>
+  </div>
+
+    <!-- ================= FOOTER ================= -->
+  <footer class="footer" id="footer">
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+      <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></symbol>
+      <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></symbol>
+      <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></symbol>
+      <symbol id="i-tg" viewBox="0 0 24 24"><path d="M21 4 3 11l6 2.5L11 20l3-4 5 4z"/><path d="M9 13.5 21 4"/></symbol>
+      <symbol id="i-in" viewBox="0 0 24 24"><rect x="3" y="9" width="4" height="12"/><circle cx="5" cy="5" r="2"/><path d="M10 9h4v2a5 5 0 0 1 7 3v7h-4v-6a2 2 0 0 0-4 0v6h-3z"/></symbol>
+      <symbol id="i-gh" viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.8a3.3 3.3 0 0 0-.9-2.6c3-.3 6.2-1.5 6.2-6.7a5.2 5.2 0 0 0-1.4-3.6 4.8 4.8 0 0 0-.1-3.6s-1.1-.4-3.7 1.4a12.8 12.8 0 0 0-6.8 0C6.7 2.5 5.6 2.9 5.6 2.9a4.8 4.8 0 0 0-.1 3.6 5.2 5.2 0 0 0-1.4 3.6c0 5.2 3.2 6.4 6.2 6.7a3.3 3.3 0 0 0-.9 2.6V22"/></symbol>
+      <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
+    </svg>
+
+    <div class="footer-top reveal">
+      <div class="footer-brand">
+        <span class="footer-logo">N</span>
+        <div>
+          <a class="footer-name" href="https://www.nivadcorp.ir/" target="_blank" rel="noopener">NIVAD CORP</a>
+          <p>We turn creative ideas into code</p>
+        </div>
+      </div>
+
+      <nav class="footer-col">
+        <h4>Explore</h4>
+        <a href="#hero" data-target="hero">Home</a>
+        <a href="#about" data-target="about">About</a>
+        <a href="#timeline" data-target="timeline">Timeline</a>
+        <a href="#contact" data-target="contact">Contact</a>
+      </nav>
+
+      <div class="footer-col">
+        <h4>Get in touch</h4>
+        <a href="mailto:nima10.n10@gmail.com"><svg class="f-ico"><use href="#i-mail"/></svg>nima10.n10@gmail.com</a>
+        <a href="tel:+989055667505"><svg class="f-ico"><use href="#i-phone"/></svg>0905 566 7505</a>
+        <span><svg class="f-ico"><use href="#i-pin"/></svg>IR,Hamedan</span>
+      </div>
+
+      <button class="to-top" data-target="hero" aria-label="Back to top">
+        <span class="to-top-circle"><svg class="f-ico"><use href="#i-up"/></svg></span>
+        <span>BACK TO TOP</span>
+      </button>
+    </div>
+
+    <div class="footer-mid reveal">
+      <div class="tagline">
+        <h2>BUILT LOUD.<br><span>NEVER BLENDS IN.</span></h2>
+        <p>The Dodge Challenger isn't just a car.<br>It's a statement. A legend on four wheels.</p>
+      </div>
+      <div class="socials">
+        <a class="s-gh" href="#" aria-label="GitHub"><svg class="f-ico"><use href="#i-gh"/></svg></a>
+        <a class="s-tg" href="#" aria-label="Telegram"><svg class="f-ico"><use href="#i-tg"/></svg></a>
+        <a class="s-in" href="#" aria-label="LinkedIn"><svg class="f-ico"><use href="#i-in"/></svg></a>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <span>© 2026 NIVAD CORP</span>
+      <span>FAN PROJECT</span>
+    </div>
+  </footer>
 <!----------------------------کانکت اسکریپت ها-------------------------->
   <script src="libs/gsap.min.js"></script>
   <script src="libs/ScrollTrigger.min.js"></script>
   <script src="vendor.js"></script>
   <script src="car-model.js"></script>
   <script src="explore.js"></script>
+  <script src="rims.js"></script>
   <script src="main.js"></script>
 </body>
 </html>

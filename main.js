@@ -1,6 +1,6 @@
 (function(){ //یک محدوده مستقل برای کدهای پروژه ایجاد میکند
 "use strict";  //فعال کردن حالت سخت گیرانه جاوا برای شناسایی خطاها
-const THREE = window.THREE, { GLTFLoader, RoomEnvironment } = THREE, createExplore = window.createExplore;
+const THREE = window.THREE, { GLTFLoader, RoomEnvironment } = THREE, createExplore = window.createExplore, createRims = window.createRims;
 
 gsap.registerPlugin(ScrollTrigger); //کنترل انیمیشن هنگام اسکرول
 
@@ -271,14 +271,17 @@ let carReady = false;
 /*==================================================================
 تبدیل داده های متنی مدل خودرو به داده های قابل بارگذاری
 ====================================================================*/
-function decodeModel() {
+async function decodeModel() {
   const parts = window.CAR_GLB, sizes = parts.map(p => p.length * 3 / 4);
   const total = Math.floor(sizes.reduce((a, b) => a + b, 0)), out = new Uint8Array(total + 8);
   let pos = 0;
   for (const p of parts) { const bin = atob(p); for (let i = 0; i < bin.length; i++) out[pos++] = bin.charCodeAt(i); }
-  return out.buffer.slice(0, pos);
+  const data = out.slice(0, pos);
+  // the file is gzip-compressed (starts with 1f 8b): unpack it; a plain .glb still works too
+  if (data[0] === 0x1f && data[1] === 0x8b) return new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer();
+  return data.buffer;
 }
-new GLTFLoader().parse(decodeModel(), '', (gltf) => {
+decodeModel().then(modelData => new GLTFLoader().parse(modelData, '', (gltf) => {
   const car = gltf.scene, carRoot = new THREE.Group();
   carRoot.add(car);
 
@@ -335,6 +338,18 @@ new GLTFLoader().parse(decodeModel(), '', (gltf) => {
   });
   window.explore = explore;
 
+  // 3b) Rims box: the 4 wheels now sit under Explore's hinges, so we look for them there
+  const rims = createRims(explore.partsRoot, { envMap: scene.environment });
+  const rimBtns = document.querySelectorAll('.ex-rim'), rimCols = document.querySelectorAll('.ex-rimcolor');
+  rimBtns.forEach(btn => btn.addEventListener('click', () => {
+    rims.setModel(btn.dataset.rim);
+    rimBtns.forEach(b => b.classList.toggle('on', b === btn));
+  }));
+  rimCols.forEach(btn => btn.addEventListener('click', () => {
+    rims.setColor(btn.dataset.color);
+    rimCols.forEach(b => b.classList.toggle('on', b === btn));
+  }));
+
   // 4) speed: glue the ~600 loose meshes of the body into a few big ones (the parts above stay separate)
   mergeStaticMeshes(car);
   car.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
@@ -353,7 +368,7 @@ new GLTFLoader().parse(decodeModel(), '', (gltf) => {
   loaderEl.classList.add('done');
   gsap.from('.slide:first-of-type .c', { yPercent: 130, xPercent: -30, skewX: -28, opacity: 0, duration: .7, stagger: .045, ease: 'expo.out', delay: .15 });
   gsap.from('.slide:first-of-type .w', { yPercent: 115, duration: .9, stagger: .06, ease: 'power3.out', delay: .9 });
-}, (err) => { console.error('GLB failed to load:', err); loaderEl.classList.add('done'); });
+}, (err) => { console.error('GLB failed to load:', err); loaderEl.classList.add('done'); })).catch((err) => { console.error('GLB failed to unpack:', err); loaderEl.classList.add('done'); });
 
 /* =====================================================================
    تقسیم نوشته ها به کلمات و حروف برای انیمیش
@@ -427,6 +442,7 @@ for (let i = 0; i < 24; i++) { const s = document.createElement('i'); rpm.append
 const rpmBars = Array.from(rpm.children), hudSpeed = document.getElementById('hudSpeed');
 const sp = { v: 0 };
 tl.to('.bar-bottom .hint', { autoAlpha: 0, duration: .2 }, 0);
+tl.to('.bar-bottom', { backgroundColor: 'rgba(14,12,11,0)', duration: .5 }, KEYS.length - 1.6);   // no black strip between the hero and About
 tl.to('.progress span', { scaleY: 1, duration: KEYS.length - 1 }, 0);
 
 /* =====================================================================
@@ -472,6 +488,18 @@ gsap.utils.toArray('.tl-item').forEach((el) => {
 });
 
 gsap.to('#tlFill', { scaleY: 1, ease: 'none', scrollTrigger: { trigger: '.tl', start: 'top 60%', end: 'bottom 60%', scrub: true } });
+
+//انیمیشن موجی موج شدن فوتر
+// waves above the footer: they speed up while you scroll fast, then calm down
+const waveAnims = document.querySelector('.wave-footer-wrap').getAnimations({ subtree: true }).filter(a => a.animationName === 'waveMove');
+let waveRate = 1, waveBoost = 0;
+ScrollTrigger.create({ onUpdate: (s) => { waveBoost = Math.min(Math.abs(s.getVelocity()) / 700, 6); } });
+gsap.ticker.add(() => {
+  waveBoost *= 0.94;
+  const r = 1 + waveBoost;
+  if (Math.abs(r - waveRate) > 0.01) { waveRate = r; waveAnims.forEach(a => { a.playbackRate = r; }); }
+});
+
 
 // Let's talk: حرف‌ها یکی‌یکی از پایین بالا میان، بعد horsepower سفید می‌شه
 document.querySelectorAll('.talk .ln').forEach(function split(node) {
